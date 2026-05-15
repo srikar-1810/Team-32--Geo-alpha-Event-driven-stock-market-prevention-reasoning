@@ -11,20 +11,26 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Hugging Face runs as user 1000
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+	PATH=/home/user/.local/bin:$PATH
+
 WORKDIR /app
 
 # Copy requirements and install
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY --chown=user requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Copy the rest of the application
-COPY . .
+COPY --chown=user . .
 
 # Set environment variables for the All-in-One setup
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV MOCK_MODE=false
-ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/geomarketgpt
+ENV DATABASE_URL=postgresql://localhost:5432/postgres
 ENV REDIS_URL=redis://localhost:6379/0
 ENV CHROMA_HOST=localhost
 ENV CHROMA_PORT=8000
