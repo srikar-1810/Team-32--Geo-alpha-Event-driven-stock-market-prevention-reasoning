@@ -1,3 +1,12 @@
+---
+title: GeoMarketGPT
+emoji: 📊
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # GeoMarketGPT
 
 **Generative Geopolitical Financial Intelligence System** — A real-time, agent-driven platform that ingests live geopolitical events and market data to predict sector impacts, run generative scenario simulations, and automatically synthesize institutional-grade intelligence briefs.
