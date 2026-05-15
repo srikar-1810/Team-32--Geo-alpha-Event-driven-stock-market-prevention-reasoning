@@ -16,7 +16,6 @@ if [ ! -d "$PGDATA" ]; then
 fi
 
 echo "🐘 Starting PostgreSQL..."
-# Use a custom socket directory in /tmp to avoid permission issues in /var/run
 pg_ctl -D "$PGDATA" -o "-c unix_socket_directories='/tmp'" -l /app/postgres_log start || echo "Postgres might be already running"
 
 # Wait for Postgres
@@ -25,22 +24,28 @@ sleep 5
 
 # 3. Start ChromaDB (Vector Store)
 echo "🧠 Starting ChromaDB..."
-# Start Chroma in the background
 chroma run --path /app/chroma_data --host 0.0.0.0 --port 8001 &
 export CHROMA_PORT=8001
 
+# Wait for ChromaDB to be ready
+echo "Waiting for ChromaDB to wake up..."
+sleep 10
+
 # 4. Initialize Database
 echo "🔧 Running database initialization..."
+# psql uses standard postgresql://
 psql -h localhost -d postgres -c "CREATE DATABASE geomarketgpt;" || echo "Database might exist"
+
+# API env vars
+export DATABASE_URL=postgresql+asyncpg://localhost:5432/postgres
+export REDIS_URL=redis://localhost:6379/0
+export CHROMA_HOST=localhost
+export CHROMA_PORT=8001
+
 python -m scripts.seed_data || echo "Seeding failed, continuing anyway..."
 
 # 5. Start the API Server (FastAPI)
 echo "⚡ Starting FastAPI Backend..."
-# Point to the local services
-export DATABASE_URL=postgresql://localhost:5432/postgres
-export REDIS_URL=redis://localhost:6379/0
-export CHROMA_HOST=localhost
-export CHROMA_PORT=8001
 uvicorn app.main:app --host 0.0.0.0 --port 8000 &
 
 # 6. Start the Celery Worker

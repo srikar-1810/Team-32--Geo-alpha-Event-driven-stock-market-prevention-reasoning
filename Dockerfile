@@ -30,10 +30,11 @@ COPY --chown=user . .
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV MOCK_MODE=false
-ENV DATABASE_URL=postgresql://localhost:5432/postgres
+# CRITICAL: Use +asyncpg for SQLAlchemy asyncio
+ENV DATABASE_URL=postgresql+asyncpg://localhost:5432/postgres
 ENV REDIS_URL=redis://localhost:6379/0
 ENV CHROMA_HOST=localhost
-ENV CHROMA_PORT=8000
+ENV CHROMA_PORT=8001
 
 # Make the start script executable
 RUN chmod +x scripts/start_hf.sh
