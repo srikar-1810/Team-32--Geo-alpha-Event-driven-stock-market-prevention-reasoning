@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# Install system dependencies, PostgreSQL, and Redis
+# Install system dependencies, PostgreSQL 17, and Redis
 RUN apt-get update && apt-get install -y \
     postgresql \
     postgresql-contrib \
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 RUN useradd -m -u 1000 user
 USER user
 ENV HOME=/home/user \
-	PATH=/home/user/.local/bin:$PATH
+    PATH=/home/user/.local/bin:/usr/lib/postgresql/17/bin:$PATH
 
 WORKDIR /app
 
