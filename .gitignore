@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+
+# Environment
+.env
+.env.local
+*.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Virtualenv
+venv/
+.venv/
+virtualenv/
+
+# Logs
+logs/
+*.log
+
+# Data
+data/
+chroma_data/
+*.db
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Reports
+output/
+reports/
+temp/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Streaming
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db

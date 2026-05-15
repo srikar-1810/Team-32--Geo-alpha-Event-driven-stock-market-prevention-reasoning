@@ -1,0 +1,1 @@
+"""GeoMarketGPT Streamlit frontend."""

@@ -1,0 +1,133 @@
+x-shared: &shared
+  restart: unless-stopped
+  networks:
+    - geomarket-net
+  environment:
+    - PYTHONPATH=/app
+    - PYTHONUNBUFFERED=1
+
+services:
+  # ── API Server ────────────────────────────
+  api:
+    <<: *shared
+    image: geomarketgpt/api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geomarketgpt-api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Frontend Dashboard ────────────────────
+  frontend:
+    <<: *shared
+    image: geomarketgpt/frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: geomarketgpt-frontend
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_started
+
+  # ── Database (PostgreSQL) ─────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: geomarketgpt-postgres
+    networks:
+      - geomarket-net
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=geomarketgpt
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Cache & Queue (Redis) ─────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: geomarketgpt-redis
+    networks:
+      - geomarket-net
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Vector DB (ChromaDB) ──────────────────
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: geomarketgpt-chroma
+    networks:
+      - geomarket-net
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "8001:8000"
+
+  # ── Celery Worker ─────────────────────────
+  worker:
+    <<: *shared
+    image: geomarketgpt/api:latest
+    container_name: geomarketgpt-worker
+    env_file:
+      - .env
+    command: celery -A app.workers.celery_app worker --loglevel=info
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.workers.celery_app inspect ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Celery Beat Scheduler ─────────────────
+  beat:
+    <<: *shared
+    image: geomarketgpt/api:latest
+    container_name: geomarketgpt-beat
+    env_file:
+      - .env
+    command: celery -A app.workers.celery_app beat --loglevel=info -s /tmp/celerybeat-schedule
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep '[c]elery .* beat'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  geomarket-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  chroma_data:
