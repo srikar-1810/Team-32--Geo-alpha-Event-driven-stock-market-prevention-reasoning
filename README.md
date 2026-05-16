@@ -1,3 +1,4 @@
+web page link: https://mahindraecolecentrale-my.sharepoint.com/:u:/g/personal/nidhi_goyal_mahindrauniversity_edu_in/IQBrkI9X-fELQqj29HNVlAqhAcaYUsKuz5Zf8tiBiAfuv44?e=aae9eo
 ---
 title: GeoMarketGPT
 emoji: 📊
@@ -6,7 +7,7 @@ colorTo: blue
 sdk: docker
 pinned: false
 ---
-
+web page link: https://mahindraecolecentrale-my.sharepoint.com/:u:/g/personal/nidhi_goyal_mahindrauniversity_edu_in/IQBrkI9X-fELQqj29HNVlAqhAcaYUsKuz5Zf8tiBiAfuv44?e=aae9eo
 # GeoMarketGPT
 
 **Generative Geopolitical Financial Intelligence System** — A real-time, agent-driven platform that ingests live geopolitical events and market data to predict sector impacts, run generative scenario simulations, and automatically synthesize institutional-grade intelligence briefs.
